@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at center, #0b0f1a 0%, #000 80%);
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 48px;
+    margin-top: 20px;
+    text-shadow: 0 0 20px #ff0, 0 0 40px #f0f;
+    animation: glow 2s infinite alternate;
+  }
+
+  @keyframes glow {
+    from { text-shadow: 0 0 10px #f0f, 0 0 20px #ff0; }
+    to { text-shadow: 0 0 25px #0ff, 0 0 50px #f0f; }
+  }
+
+  .photo-frame {
+    border: 5px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    width: 300px;
+    height: 400px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.2);
+  }
+
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .btn {
+    margin-top: 30px;
+    padding: 15px 40px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #111;
+    background: linear-gradient(90deg, #ff0077, #ffee00);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255,255,255,0.3);
+    transition: 0.3s;
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255,255,255,0.5);
+  }
+
+  .rainbow {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 260px;
+    font-weight: 900;
+    text-align: center;
+    background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet, red);
+    background-size: 400% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 1s linear infinite;
+    text-shadow: 0 0 20px rgba(255,255,255,0.3);
+  }
+
+  @keyframes rainbow {
+    from { background-position: 0% 0%; }
+    to { background-position: 400% 0%; }
+  }
+
+  .corner {
+    position: fixed;
+    width: 220px;
+    height: 220px;
+    opacity: 0.85;
+    z-index: 1;
+  }
+  .corner img { width: 100%; height: 100%; object-fit: contain; }
+
+  .top-left { top: 10px; left: 10px; }
+  .top-right { top: 10px; right: 10px; }
+  .bottom-left { bottom: 10px; left: 10px; }
+  .bottom-right { bottom: 10px; right: 10px; }
+
+  .middle-left, .middle-right {
+    position: fixed;
+    width: 220px;
+    height: 220px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.85;
+    z-index: 1;
+  }
+  .middle-left { left: 10px; }
+  .middle-right { right: 10px; }
+
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="photo-frame">
+  <img src="Kostyaa.jpg" alt="Костя">
+</div>
+
+<h1>с днём рождения братищька маленький</h1>
+
+<button class="btn" id="startBtn">жмякни сюда</button>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="corner top-left"><img src="corner.png" alt=""></div>
+<div class="corner top-right"><img src="corner.png" alt=""></div>
+<div class="corner bottom-left"><img src="corner.png" alt=""></div>
+<div class="corner bottom-right"><img src="corner.png" alt=""></div>
+<div class="middle-left"><img src="vor.png" alt=""></div>
+<div class="middle-right"><img src="vor.png" alt=""></div>
+
+<div class="rainbow">RUSSIA BE MAD</div>
+
+<audio id="birthdaySong" src="music.mp3"></audio>
+
+<script>
+  const btn = document.getElementById('startBtn');
+  const song = document.getElementById('birthdaySong');
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let confetti = [];
+
+  function createConfetti() {
+    for (let i = 0; i < 150; i++) {
+      confetti.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight - window.innerHeight,
+        r: Math.random() * 6 + 4,
+        dx: Math.random() - 0.5,
+        dy: Math.random() * 4 + 2,
+        color: `hsl(${Math.random()*360}, 100%, 50%)`
+      });
+    }
+  }
+
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    });
+  }
+
+  function updateConfetti() {
+    confetti.forEach(p => {
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.y > canvas.height) p.y = -10;
+    });
+  }
+
+  function loop() {
+    drawConfetti();
+    updateConfetti();
+    requestAnimationFrame(loop);
+  }
+
+  function startShow() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    createConfetti();
+    loop();
+
+    song.currentTime = 0;
+    song.play().catch(e => console.log('Музыка не запущена:', e));
+  }
+
+  btn.addEventListener('click', startShow);
+</script>
+
+</body>
+</html>
